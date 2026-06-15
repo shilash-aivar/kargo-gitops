@@ -31,7 +31,7 @@ spec:
         as: commit
         config:
           path: ./repo
-          message: "chore(dev): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
+          message: "chore(dev): promote to dev"
       - uses: git-push
         config:
           path: ./repo
@@ -77,7 +77,7 @@ spec:
         as: commit
         config:
           path: ./repo
-          message: "chore(staging): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
+          message: "chore(staging): promote to staging"
       - uses: git-push
         config:
           path: ./repo
@@ -123,7 +123,7 @@ spec:
         as: commit
         config:
           path: ./repo
-          message: "chore(prod): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
+          message: "chore(prod): promote to prod"
       - uses: git-push
         config:
           path: ./repo
