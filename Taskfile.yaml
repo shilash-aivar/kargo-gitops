@@ -154,7 +154,7 @@ tasks:
     - |
       kubectl --context {{.CONTEXT}} create secret generic dockerhub-credentials \
         --namespace kargo-demo \
-        --from-literal=repoURL=docker.io/shilash-aivar/kargo-repo \
+        --from-literal=repoURL=docker.io/18bit048/kargo-repo \
         --from-literal=username={{.DOCKERHUB_USERNAME}} \
         --from-literal=password={{.DOCKERHUB_TOKEN}} \
         --dry-run=client -o yaml | \
