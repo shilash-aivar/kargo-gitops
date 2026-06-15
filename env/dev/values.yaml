@@ -9,5 +9,9 @@ env:
 replicaCount: 1
 
 ingress:
-  enabled: true
-  host: kargo-demo-dev.example.com
+  enabled: false
+  # host: kargo-demo-dev.example.com
+
+# rollout:
+#   enabled: true
+#   strategy: canary

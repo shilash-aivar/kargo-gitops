@@ -9,9 +9,9 @@ env:
 replicaCount: 2
 
 ingress:
-  enabled: true
-  host: kargo-demo.example.com
+  enabled: false
+  # host: kargo-demo.example.com
 
-rollout:
-  enabled: true
-  strategy: blueGreen
+# rollout:
+#   enabled: true
+#   strategy: blueGreen
