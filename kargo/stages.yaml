@@ -38,6 +38,7 @@ spec:
         config:
           apps:
           - name: kargo-demo-dev
+            namespace: default
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -80,6 +81,7 @@ spec:
         config:
           apps:
           - name: kargo-demo-staging
+            namespace: default
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -122,3 +124,4 @@ spec:
         config:
           apps:
           - name: kargo-demo-prod
+            namespace: default
