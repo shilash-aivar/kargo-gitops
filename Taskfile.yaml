@@ -114,6 +114,13 @@ tasks:
     - echo "ArgoCD UI at http://localhost:8080 - user is admin"
     - kubectl --context {{.CONTEXT}} port-forward svc/my-argo-cd-argocd-server -n default 8080:80
 
+  argocd:add-clusters:
+    desc: Register dev and stage clusters with ArgoCD (requires ARGOCD_PASSWORD, needs port-forward running)
+    cmds:
+    - argocd login localhost:8080 --username admin --password {{.ARGOCD_PASSWORD}} --insecure
+    - argocd cluster add kind-dev-cluster --name dev-cluster --insecure -y
+    - argocd cluster add kind-stage-cluster --name stage-cluster --insecure -y
+
   argocd:add-repo:
     desc: Add kargo-gitops repo credential to ArgoCD (requires GITHUB_TOKEN)
     cmds:
