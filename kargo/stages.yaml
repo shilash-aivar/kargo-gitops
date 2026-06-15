@@ -38,9 +38,6 @@ spec:
         config:
           apps:
           - name: kargo-demo-dev
-            sources:
-            - repoURL: https://github.com/shilash-aivar/kargo-gitops.git
-              desiredCommitFromStep: commit
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -83,9 +80,6 @@ spec:
         config:
           apps:
           - name: kargo-demo-staging
-            sources:
-            - repoURL: https://github.com/shilash-aivar/kargo-gitops.git
-              desiredCommitFromStep: commit
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -128,6 +122,3 @@ spec:
         config:
           apps:
           - name: kargo-demo-prod
-            sources:
-            - repoURL: https://github.com/shilash-aivar/kargo-gitops.git
-              desiredCommitFromStep: commit
