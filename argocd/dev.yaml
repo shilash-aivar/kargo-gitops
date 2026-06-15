@@ -15,7 +15,7 @@ spec:
       valueFiles:
       - ../../env/dev/values.yaml
   destination:
-    server: https://172.19.0.3:6443
+    server: https://kubernetes.default.svc
     namespace: kargo-demo-dev
   syncPolicy:
     automated:
