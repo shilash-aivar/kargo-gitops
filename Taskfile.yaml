@@ -4,6 +4,7 @@ vars:
   ENV: '{{.ENV | default "dev"}}'
   CHART: charts/kargo-demo
   NAMESPACE: kargo-demo-{{.ENV}}
+  CONTEXT: kind-management-cluster
 
 tasks:
   default:
@@ -41,8 +42,9 @@ tasks:
   # ── Kargo ───────────────────────────────────────────────────────────────────
 
   kargo:apply:
-    desc: Apply all Kargo resources (Project, Warehouse, Stages)
+    desc: Apply all Kargo resources (RBAC, Project, Warehouse, Stages)
     cmds:
+    - kubectl apply -f kargo/rbac.yaml
     - kubectl apply -f kargo/project.yaml
     - kubectl apply -f kargo/warehouse.yaml
     - kubectl apply -f kargo/stages.yaml
@@ -60,64 +62,119 @@ tasks:
     - kubectl get stages -n kargo-demo
     - kubectl get freight -n kargo-demo
 
-  # ── ArgoCD ──────────────────────────────────────────────────────────────────
+  # ── Kargo ───────────────────────────────────────────────────────────────────
+
+  kargo:password:
+    desc: Show Kargo admin password hash (plaintext is set at install time)
+    cmds:
+    - echo "Kargo admin password is set at install time via adminAccount.password"
+    - echo "Hash stored in secret:"
+    - kubectl --context {{.CONTEXT}} -n default get secret kargo-api -o jsonpath="{.data.ADMIN_ACCOUNT_PASSWORD_HASH}" | base64 -d && echo ""
+
+  kargo:reset-password:
+    desc: Reset Kargo admin password (requires KARGO_PASSWORD env var)
+    cmds:
+    - |
+      HASH=$(htpasswd -bnBC 10 "" {{.KARGO_PASSWORD}} | tr -d ':\n')
+      helm upgrade my-kargo oci://ghcr.io/akuity/kargo-charts/kargo \
+        --namespace default \
+        --kube-context {{.CONTEXT}} \
+        --reuse-values \
+        --set "adminAccount.passwordHash=$HASH"
+
+  kargo:port-forward:
+    desc: Port-forward Kargo UI to localhost:8081
+    cmds:
+    - echo "Kargo UI at http://localhost:8081"
+    - kubectl --context {{.CONTEXT}} port-forward svc/kargo-api -n default 8081:443
 
   argocd:apply:
     desc: Apply all ArgoCD Application CRs
     cmds:
-    - kubectl apply -f argocd/
+    - kubectl --context {{.CONTEXT}} apply -f argocd/
 
   argocd:delete:
     desc: Delete all ArgoCD Application CRs
     cmds:
-    - kubectl delete -f argocd/ --ignore-not-found
+    - kubectl --context {{.CONTEXT}} delete -f argocd/ --ignore-not-found
 
   argocd:status:
     desc: Show ArgoCD app sync status
     cmds:
-    - kubectl get applications -n argocd -l app.kubernetes.io/name=kargo-demo
+    - kubectl --context {{.CONTEXT}} get applications -n default
+
+  argocd:password:
+    desc: Get ArgoCD admin password
+    cmds:
+    - kubectl --context {{.CONTEXT}} -n default get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo ""
+
+  argocd:port-forward:
+    desc: Port-forward ArgoCD UI to localhost:8080
+    cmds:
+    - echo "ArgoCD UI at http://localhost:8080 - user is admin"
+    - kubectl --context {{.CONTEXT}} port-forward svc/my-argo-cd-argocd-server -n default 8080:80
+
+  argocd:add-repo:
+    desc: Add kargo-gitops repo credential to ArgoCD (requires GITHUB_TOKEN)
+    cmds:
+    - |
+      cat <<EOF | kubectl --context {{.CONTEXT}} apply -f -
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: kargo-gitops-repo
+        namespace: default
+        labels:
+          argocd.argoproj.io/secret-type: repository
+      stringData:
+        type: git
+        url: https://github.com/shilash-aivar/kargo-gitops.git
+        username: shilash-aivar
+        password: "{{.GITHUB_TOKEN}}"
+      EOF
 
   # ── Credentials ─────────────────────────────────────────────────────────────
 
   creds:apply:
     desc: Apply Kargo credentials (Docker Hub + GitHub) — fill in values first
     cmds:
-    - kubectl apply -f kargo/credentials/dockerhub.yaml
-    - kubectl apply -f kargo/credentials/github.yaml
+    - kubectl --context {{.CONTEXT}} apply -f kargo/credentials/dockerhub.yaml
+    - kubectl --context {{.CONTEXT}} apply -f kargo/credentials/github.yaml
 
   creds:create-dockerhub:
     desc: Create Docker Hub cred secret imperatively (avoids committing secrets)
     cmds:
     - |
-      kubectl create secret generic dockerhub-credentials \
+      kubectl --context {{.CONTEXT}} create secret generic dockerhub-credentials \
         --namespace kargo-demo \
-        --from-literal=repoURL=docker.io/18bit048/kargo-repo \
+        --from-literal=repoURL=docker.io/shilash-aivar/kargo-repo \
         --from-literal=username={{.DOCKERHUB_USERNAME}} \
         --from-literal=password={{.DOCKERHUB_TOKEN}} \
         --dry-run=client -o yaml | \
-      kubectl label --local -f - kargo.akuity.io/cred-type=image --dry-run=client -o yaml | \
-      kubectl apply -f -
+      kubectl --context {{.CONTEXT}} label --local -f - kargo.akuity.io/cred-type=image --dry-run=client -o yaml | \
+      kubectl --context {{.CONTEXT}} apply -f -
 
   creds:create-github:
     desc: Create GitHub cred secret imperatively (avoids committing secrets)
     cmds:
     - |
-      kubectl create secret generic github-credentials \
+      kubectl --context {{.CONTEXT}} create secret generic github-credentials \
         --namespace kargo-demo \
-        --from-literal=repoURL=https://github.com/18bit048/kargo-gitops.git \
+        --from-literal=repoURL=https://github.com/shilash-aivar/kargo-gitops.git \
         --from-literal=username={{.GITHUB_USERNAME}} \
         --from-literal=password={{.GITHUB_TOKEN}} \
         --dry-run=client -o yaml | \
-      kubectl label --local -f - kargo.akuity.io/cred-type=git --dry-run=client -o yaml | \
-      kubectl apply -f -
+      kubectl --context {{.CONTEXT}} label --local -f - kargo.akuity.io/cred-type=git --dry-run=client -o yaml | \
+      kubectl --context {{.CONTEXT}} apply -f -
 
   # ── Bootstrap ───────────────────────────────────────────────────────────────
 
   bootstrap:
-    desc: Full bootstrap — credentials, ArgoCD apps, then Kargo resources
+    desc: Full bootstrap — credentials, ArgoCD repo, then Kargo resources
     cmds:
     - task: creds:create-dockerhub
     - task: creds:create-github
+    - task: argocd:add-repo
     - task: argocd:apply
     - task: kargo:apply
 
@@ -125,5 +182,4 @@ tasks:
     desc: Remove everything
     cmds:
     - task: kargo:delete
-    - task: argocd:delete
-    - kubectl delete secret dockerhub-credentials github-credentials -n kargo-demo --ignore-not-found
+    - kubectl --context {{.CONTEXT}} delete secret dockerhub-credentials github-credentials -n kargo-demo --ignore-not-found

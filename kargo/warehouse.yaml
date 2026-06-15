@@ -6,6 +6,6 @@ metadata:
 spec:
   subscriptions:
   - image:
-      repoURL: docker.io/18bit048/kargo-repo
+      repoURL: docker.io/shilash-aivar/kargo-repo
       semverConstraint: ">=0.1.0"
       discoveryLimit: 5
