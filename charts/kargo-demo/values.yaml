@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/your-org/kargo-demo
+  repository: 18bit048/kargo-repo
   pullPolicy: IfNotPresent
   tag: "latest"
 

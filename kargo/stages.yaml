@@ -15,7 +15,7 @@ spec:
       steps:
       - uses: git-clone
         config:
-          repoURL: https://github.com/your-org/kargo-gitops.git
+          repoURL: https://github.com/18bit048/kargo-gitops.git
           checkout:
           - branch: main
             path: ./repo
@@ -24,14 +24,14 @@ spec:
         config:
           path: repo/env/dev/values.yaml
           images:
-          - image: ghcr.io/your-org/kargo-demo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(dev): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+          message: "chore(dev): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
@@ -40,7 +40,7 @@ spec:
           apps:
           - name: kargo-demo-dev
             sources:
-            - repoURL: https://github.com/your-org/kargo-gitops.git
+            - repoURL: https://github.com/18bit048/kargo-gitops.git
               desiredCommitFromStep: commit
 ---
 apiVersion: kargo.akuity.io/v1alpha1
@@ -61,7 +61,7 @@ spec:
       steps:
       - uses: git-clone
         config:
-          repoURL: https://github.com/your-org/kargo-gitops.git
+          repoURL: https://github.com/18bit048/kargo-gitops.git
           checkout:
           - branch: main
             path: ./repo
@@ -70,14 +70,14 @@ spec:
         config:
           path: repo/env/staging/values.yaml
           images:
-          - image: ghcr.io/your-org/kargo-demo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(staging): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+          message: "chore(staging): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
@@ -86,7 +86,7 @@ spec:
           apps:
           - name: kargo-demo-staging
             sources:
-            - repoURL: https://github.com/your-org/kargo-gitops.git
+            - repoURL: https://github.com/18bit048/kargo-gitops.git
               desiredCommitFromStep: commit
 ---
 apiVersion: kargo.akuity.io/v1alpha1
@@ -107,7 +107,7 @@ spec:
       steps:
       - uses: git-clone
         config:
-          repoURL: https://github.com/your-org/kargo-gitops.git
+          repoURL: https://github.com/18bit048/kargo-gitops.git
           checkout:
           - branch: main
             path: ./repo
@@ -116,14 +116,14 @@ spec:
         config:
           path: repo/env/prod/values.yaml
           images:
-          - image: ghcr.io/your-org/kargo-demo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(prod): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+          message: "chore(prod): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
@@ -132,5 +132,5 @@ spec:
           apps:
           - name: kargo-demo-prod
             sources:
-            - repoURL: https://github.com/your-org/kargo-gitops.git
+            - repoURL: https://github.com/18bit048/kargo-gitops.git
               desiredCommitFromStep: commit

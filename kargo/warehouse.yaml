@@ -6,6 +6,6 @@ metadata:
 spec:
   subscriptions:
   - image:
-      repoURL: ghcr.io/your-org/kargo-demo
-      semverConstraint: ^0.1.0
+      repoURL: docker.io/18bit048/kargo-repo
+      semverConstraint: ">=0.1.0"
       discoveryLimit: 5

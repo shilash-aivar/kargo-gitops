@@ -77,11 +77,47 @@ tasks:
     cmds:
     - kubectl get applications -n argocd -l app.kubernetes.io/name=kargo-demo
 
+  # ── Credentials ─────────────────────────────────────────────────────────────
+
+  creds:apply:
+    desc: Apply Kargo credentials (Docker Hub + GitHub) — fill in values first
+    cmds:
+    - kubectl apply -f kargo/credentials/dockerhub.yaml
+    - kubectl apply -f kargo/credentials/github.yaml
+
+  creds:create-dockerhub:
+    desc: Create Docker Hub cred secret imperatively (avoids committing secrets)
+    cmds:
+    - |
+      kubectl create secret generic dockerhub-credentials \
+        --namespace kargo-demo \
+        --from-literal=repoURL=docker.io/18bit048/kargo-repo \
+        --from-literal=username={{.DOCKERHUB_USERNAME}} \
+        --from-literal=password={{.DOCKERHUB_TOKEN}} \
+        --dry-run=client -o yaml | \
+      kubectl label --local -f - kargo.akuity.io/cred-type=image --dry-run=client -o yaml | \
+      kubectl apply -f -
+
+  creds:create-github:
+    desc: Create GitHub cred secret imperatively (avoids committing secrets)
+    cmds:
+    - |
+      kubectl create secret generic github-credentials \
+        --namespace kargo-demo \
+        --from-literal=repoURL=https://github.com/18bit048/kargo-gitops.git \
+        --from-literal=username={{.GITHUB_USERNAME}} \
+        --from-literal=password={{.GITHUB_TOKEN}} \
+        --dry-run=client -o yaml | \
+      kubectl label --local -f - kargo.akuity.io/cred-type=git --dry-run=client -o yaml | \
+      kubectl apply -f -
+
   # ── Bootstrap ───────────────────────────────────────────────────────────────
 
   bootstrap:
-    desc: Full bootstrap — apply ArgoCD apps then Kargo resources
+    desc: Full bootstrap — credentials, ArgoCD apps, then Kargo resources
     cmds:
+    - task: creds:create-dockerhub
+    - task: creds:create-github
     - task: argocd:apply
     - task: kargo:apply
 
@@ -90,3 +126,4 @@ tasks:
     cmds:
     - task: kargo:delete
     - task: argocd:delete
+    - kubectl delete secret dockerhub-credentials github-credentials -n kargo-demo --ignore-not-found
