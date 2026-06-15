@@ -1,0 +1,136 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: dev
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/your-org/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: helm-update-image
+        as: update-image
+        config:
+          path: repo/env/dev/values.yaml
+          images:
+          - image: ghcr.io/your-org/kargo-demo
+            key: image.tag
+            value: Tag
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(dev): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-demo-dev
+            sources:
+            - repoURL: https://github.com/your-org/kargo-gitops.git
+              desiredCommitFromStep: commit
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: staging
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      stages:
+      - dev
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/your-org/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: helm-update-image
+        as: update-image
+        config:
+          path: repo/env/staging/values.yaml
+          images:
+          - image: ghcr.io/your-org/kargo-demo
+            key: image.tag
+            value: Tag
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(staging): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-demo-staging
+            sources:
+            - repoURL: https://github.com/your-org/kargo-gitops.git
+              desiredCommitFromStep: commit
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: prod
+  namespace: kargo-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-demo
+    sources:
+      stages:
+      - staging
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/your-org/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: helm-update-image
+        as: update-image
+        config:
+          path: repo/env/prod/values.yaml
+          images:
+          - image: ghcr.io/your-org/kargo-demo
+            key: image.tag
+            value: Tag
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(prod): promote ${{ imageFrom \"ghcr.io/your-org/kargo-demo\" | tag }}"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-demo-prod
+            sources:
+            - repoURL: https://github.com/your-org/kargo-gitops.git
+              desiredCommitFromStep: commit

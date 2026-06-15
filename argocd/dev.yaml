@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kargo-demo-dev
+  namespace: argocd
+  annotations:
+    kargo.akuity.io/authorized-stage: kargo-demo:dev
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/kargo-gitops.git
+    targetRevision: main
+    path: charts/kargo-demo
+    helm:
+      valueFiles:
+      - ../../env/dev/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kargo-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

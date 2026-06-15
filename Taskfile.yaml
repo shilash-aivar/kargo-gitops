@@ -1,0 +1,92 @@
+version: "3"
+
+vars:
+  ENV: '{{.ENV | default "dev"}}'
+  CHART: charts/kargo-demo
+  NAMESPACE: kargo-demo-{{.ENV}}
+
+tasks:
+  default:
+    desc: List all tasks
+    cmds:
+    - task --list
+
+  # ── Helm ────────────────────────────────────────────────────────────────────
+
+  helm:lint:
+    desc: Lint the Helm chart
+    cmds:
+    - helm lint {{.CHART}}
+
+  helm:template:
+    desc: Render Helm templates for an env (ENV=dev|staging|prod)
+    cmds:
+    - helm template kargo-demo-{{.ENV}} {{.CHART}} -f env/{{.ENV}}/values.yaml
+
+  helm:diff:
+    desc: Diff what would change for an env (requires helm-diff plugin)
+    cmds:
+    - helm diff upgrade kargo-demo-{{.ENV}} {{.CHART}} -f env/{{.ENV}}/values.yaml -n {{.NAMESPACE}}
+
+  helm:install:
+    desc: Install/upgrade chart for an env (ENV=dev|staging|prod)
+    cmds:
+    - helm upgrade --install kargo-demo-{{.ENV}} {{.CHART}} -f env/{{.ENV}}/values.yaml -n {{.NAMESPACE}} --create-namespace
+
+  helm:uninstall:
+    desc: Uninstall chart for an env
+    cmds:
+    - helm uninstall kargo-demo-{{.ENV}} -n {{.NAMESPACE}}
+
+  # ── Kargo ───────────────────────────────────────────────────────────────────
+
+  kargo:apply:
+    desc: Apply all Kargo resources (Project, Warehouse, Stages)
+    cmds:
+    - kubectl apply -f kargo/project.yaml
+    - kubectl apply -f kargo/warehouse.yaml
+    - kubectl apply -f kargo/stages.yaml
+
+  kargo:delete:
+    desc: Delete all Kargo resources
+    cmds:
+    - kubectl delete -f kargo/stages.yaml --ignore-not-found
+    - kubectl delete -f kargo/warehouse.yaml --ignore-not-found
+    - kubectl delete -f kargo/project.yaml --ignore-not-found
+
+  kargo:status:
+    desc: Show freight and stage status
+    cmds:
+    - kubectl get stages -n kargo-demo
+    - kubectl get freight -n kargo-demo
+
+  # ── ArgoCD ──────────────────────────────────────────────────────────────────
+
+  argocd:apply:
+    desc: Apply all ArgoCD Application CRs
+    cmds:
+    - kubectl apply -f argocd/
+
+  argocd:delete:
+    desc: Delete all ArgoCD Application CRs
+    cmds:
+    - kubectl delete -f argocd/ --ignore-not-found
+
+  argocd:status:
+    desc: Show ArgoCD app sync status
+    cmds:
+    - kubectl get applications -n argocd -l app.kubernetes.io/name=kargo-demo
+
+  # ── Bootstrap ───────────────────────────────────────────────────────────────
+
+  bootstrap:
+    desc: Full bootstrap — apply ArgoCD apps then Kargo resources
+    cmds:
+    - task: argocd:apply
+    - task: kargo:apply
+
+  teardown:
+    desc: Remove everything
+    cmds:
+    - task: kargo:delete
+    - task: argocd:delete

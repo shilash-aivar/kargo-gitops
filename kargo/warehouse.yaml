@@ -1,0 +1,11 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: kargo-demo
+  namespace: kargo-demo
+spec:
+  subscriptions:
+  - image:
+      repoURL: ghcr.io/your-org/kargo-demo
+      semverConstraint: ^0.1.0
+      discoveryLimit: 5
