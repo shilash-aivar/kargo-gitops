@@ -19,14 +19,13 @@ spec:
           checkout:
           - branch: main
             path: ./repo
-      - uses: helm-update-image
+      - uses: yaml-update
         as: update-image
         config:
           path: repo/env/dev/values.yaml
-          images:
-          - image: docker.io/18bit048/kargo-repo
-            key: image.tag
-            value: Tag
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo").Tag }}
       - uses: git-commit
         as: commit
         config:
@@ -65,14 +64,13 @@ spec:
           checkout:
           - branch: main
             path: ./repo
-      - uses: helm-update-image
+      - uses: yaml-update
         as: update-image
         config:
           path: repo/env/staging/values.yaml
-          images:
-          - image: docker.io/18bit048/kargo-repo
-            key: image.tag
-            value: Tag
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo").Tag }}
       - uses: git-commit
         as: commit
         config:
@@ -111,14 +109,13 @@ spec:
           checkout:
           - branch: main
             path: ./repo
-      - uses: helm-update-image
+      - uses: yaml-update
         as: update-image
         config:
           path: repo/env/prod/values.yaml
-          images:
-          - image: docker.io/18bit048/kargo-repo
-            key: image.tag
-            value: Tag
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo").Tag }}
       - uses: git-commit
         as: commit
         config:
