@@ -24,14 +24,14 @@ spec:
         config:
           path: repo/env/dev/values.yaml
           images:
-          - image: docker.io/shilash-aivar/kargo-repo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(dev): promote ${{ imageFrom \"shilash-aivar/kargo-repo\" | tag }}"
+          message: "chore(dev): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
@@ -70,14 +70,14 @@ spec:
         config:
           path: repo/env/staging/values.yaml
           images:
-          - image: docker.io/shilash-aivar/kargo-repo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(staging): promote ${{ imageFrom \"shilash-aivar/kargo-repo\" | tag }}"
+          message: "chore(staging): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
@@ -116,14 +116,14 @@ spec:
         config:
           path: repo/env/prod/values.yaml
           images:
-          - image: docker.io/shilash-aivar/kargo-repo
+          - image: docker.io/18bit048/kargo-repo
             key: image.tag
             value: Tag
       - uses: git-commit
         as: commit
         config:
           path: ./repo
-          message: "chore(prod): promote ${{ imageFrom \"shilash-aivar/kargo-repo\" | tag }}"
+          message: "chore(prod): promote ${{ imageFrom \"18bit048/kargo-repo\" | tag }}"
       - uses: git-push
         config:
           path: ./repo
