@@ -1,0 +1,125 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: convogent-demo-dev
+  namespace: kargo-convogent-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name:  kargo-convogent-demo-dev
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/shilash-aivar/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: yaml-update
+        as: update-image
+        config:
+          path: repo/env/convogent-like-dev/values.yaml
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo-dev").Tag }}
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(dev): promote to dev"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-convogent-demo-dev
+            namespace: default
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: convogent-demo-staging
+  namespace: kargo-convogent-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name:  kargo-convogent-demo-stage
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/shilash-aivar/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: yaml-update
+        as: update-image
+        config:
+          path: repo/env/convogent-like-stage/values.yaml
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo-stage").Tag }}
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(staging): promote to staging"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-convogent-demo-staging
+            namespace: default
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: convogent-demo-prod
+  namespace: kargo-convogent-demo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: kargo-convogent-demo-prod
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      steps:
+      - uses: git-clone
+        config:
+          repoURL: https://github.com/shilash-aivar/kargo-gitops.git
+          checkout:
+          - branch: main
+            path: ./repo
+      - uses: yaml-update
+        as: update-image
+        config:
+          path: repo/env/convogent-like-prod/values.yaml
+          updates:
+          - key: image.tag
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo-prod").Tag }}
+      - uses: git-commit
+        as: commit
+        config:
+          path: ./repo
+          message: "chore(prod): promote to prod"
+      - uses: git-push
+        config:
+          path: ./repo
+      - uses: argocd-update
+        config:
+          apps:
+          - name: kargo-convogent-demo-prod
+            namespace: default

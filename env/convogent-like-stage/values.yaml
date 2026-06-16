@@ -1,0 +1,17 @@
+image:
+  repository: 18bit048/kargo-repo
+  tag: 1.0.1
+
+env:
+  APP_ENV: convogent-like-stage
+  APP_VERSION: latest
+
+replicaCount: 1
+
+ingress:
+  enabled: false
+  # host: kargo-demo-dev.example.com
+
+# rollout:
+#   enabled: true
+#   strategy: canary
