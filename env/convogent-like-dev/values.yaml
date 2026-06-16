@@ -1,5 +1,5 @@
 image:
-  repository: 18bit048/kargo-repo
+  repository: 18bit048/kargo-repo-dev
   tag: dfba18ce01a6ff0ebe7fe8edb5f8b04bb4953c32
 
 env:

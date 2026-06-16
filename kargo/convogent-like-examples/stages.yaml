@@ -49,7 +49,7 @@ spec:
   requestedFreight:
   - origin:
       kind: Warehouse
-      name:  kargo-convogent-demo-stage
+      name:  kargo-convogent-demo-state
     sources:
       direct: true
   promotionTemplate:
@@ -67,7 +67,7 @@ spec:
           path: repo/env/convogent-like-stage/values.yaml
           updates:
           - key: image.tag
-            value: ${{ imageFrom("docker.io/18bit048/kargo-repo-stage").Tag }}
+            value: ${{ imageFrom("docker.io/18bit048/kargo-repo-state").Tag }}
       - uses: git-commit
         as: commit
         config:
