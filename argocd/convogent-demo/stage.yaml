@@ -4,7 +4,7 @@ metadata:
   name: kargo-convogent-demo-stage
   namespace: default
   annotations:
-    kargo.akuity.io/authorized-stage: kargo-convogent-demo:convogent-demo-stage
+    kargo.akuity.io/authorized-stage: kargo-convogent-demo:convogent-demo-staging
 spec:
   project: default
   source:
