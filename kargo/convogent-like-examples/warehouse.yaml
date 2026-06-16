@@ -14,12 +14,12 @@ spec:
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
 metadata:
-  name: kargo-convogent-demo-state
+  name: kargo-convogent-demo-stage
   namespace: kargo-convogent-demo
 spec:
   subscriptions:
   - image:
-      repoURL: docker.io/18bit048/kargo-repo-state
+      repoURL: docker.io/18bit048/kargo-repo-stage
       allowTags: "^[0-9a-f]{7,40}$"
       imageSelectionStrategy: NewestBuild
       discoveryLimit: 5
