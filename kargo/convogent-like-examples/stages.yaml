@@ -79,7 +79,7 @@ spec:
       - uses: argocd-update
         config:
           apps:
-          - name: kargo-convogent-demo-staging
+          - name: kargo-convogent-demo-stage
             namespace: default
 ---
 apiVersion: kargo.akuity.io/v1alpha1
