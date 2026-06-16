@@ -1,6 +1,6 @@
 image:
   repository: 18bit048/kargo-repo
-  tag: 1.0.1
+  tag: dfba18ce01a6ff0ebe7fe8edb5f8b04bb4953c32
 
 env:
   APP_ENV: convogent-like-dev
